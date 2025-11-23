@@ -77,7 +77,8 @@ pip install \
     langchain-community \
     mcp \
     pandas \ 
-    duckduckgo-search
+    duckduckgo-search \
+    streamlit
 ```
 
 ---
@@ -141,7 +142,17 @@ Constraint Errors: 0
 ```
 ---
 
-## 6. Design Highlights & Limitations
+## 6. Running the Streamlit UI app
+
+```bash
+cd mas_factchecker
+python -m streamlit run app.py
+
+```
+
+---
+
+## 7. Design Highlights & Limitations
 
 Highlights
 - MCP-native agents: Each role is a separate MCP server exposing a small tool surface.

@@ -33,6 +33,42 @@
         "id": 6,
         "claim": "Atlantis was discovered in 2024.",
         "expected": "REFUTED",
+        "difficulty": "Medium"
+    },
+    {
+        "id": 7,
+        "claim": "modi is PM of bangoladesh.",
+        "expected": "REFUTED",
         "difficulty": "Hard"
+    },
+    {
+        "id": 8,
+        "claim": "shiek hansia is PM of bangoladesh.",
+        "expected": "REFUTED",
+        "difficulty": "Hard"
+    },
+    {
+        "id": 9,
+        "claim": "The Eiffel Tower is located in Berlin.",
+        "expected": "REFUTED",
+        "difficulty": "Easy"
+    },
+    {
+        "id": 10,
+        "claim": "The Great Wall of China is visible from space.",
+        "expected": "REFUTED",
+        "difficulty": "Medium"
+    },
+    {
+        "id": 11,
+        "claim": "The capital of Australia is Sydney.",
+        "expected": "REFUTED",
+        "difficulty": "Easy"
+    },
+    {
+        "id": 12,
+        "claim": "Nitish kumar won bihar election of 2024.",
+        "expected": "False",
+        "difficulty": "Medium"
     }
 ]
