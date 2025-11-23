@@ -1,0 +1,38 @@
+[
+    {
+        "id": 1,
+        "claim": "Trump says he expects to have second meeting with Putin",
+        "expected": "SUPPORTED",
+        "difficulty": "Hard"
+    },
+    {
+        "id": 2,
+        "claim": "Pope Francis Shocks World, Endorses Donald Trump",
+        "expected": "REFUTED",
+        "difficulty": "Medium"
+    },
+    {
+        "id": 3,
+        "claim": "The Hunger Games is a novel.",
+        "expected": "SUPPORTED",
+        "difficulty": "Easy"
+    },
+    {
+        "id": 4,
+        "claim": "Barack Obama was born in Kenya.",
+        "expected": "REFUTED",
+        "difficulty": "Medium"
+    },
+    {
+        "id": 5,
+        "claim": "Python was released in 1991.",
+        "expected": "SUPPORTED",
+        "difficulty": "Easy"
+    },
+    {
+        "id": 6,
+        "claim": "Atlantis was discovered in 2024.",
+        "expected": "REFUTED",
+        "difficulty": "Hard"
+    }
+]
