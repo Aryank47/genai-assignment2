@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -9,16 +10,26 @@ mcp = FastMCP("AgentAnalyzer")
 llm = ChatOllama(model="qwen2.5:7b", temperature=0, format="json")
 
 
+# --- INTERNAL TOOLS ---
+def _get_current_year() -> str:
+    """Tool to get the current year for time-anchoring queries."""
+    return str(datetime.datetime.now().year)
+
+
 @mcp.tool()
 def analyze_claim_structure(claim: str) -> str:
     """
     Analyzes a claim to extract core entities and intent.
     Returns JSON string with 'entities', 'search_queries', and 'complexity'.
     """
-    print(f"[Analyzer] Processing: {claim}")
+    # Tool Call: Get Current Year
+    current_year = _get_current_year()
+    
+    print(f"[Analyzer] Processing: {claim} (Year: {current_year})")
     
     prompt = f"""
     Analyze this claim: "{claim}"
+    Current Year: {current_year}
     
     Task:
     1. Detect and fix typos (e.g., "Shiek" -> "Sheikh", "Ghandi" -> "Gandhi").
@@ -28,14 +39,14 @@ def analyze_claim_structure(claim: str) -> str:
        CRITICAL RULES FOR QUERIES:
        - **NO QUESTIONS**: Do not start with "Who is", "Is there", "What is". Use keywords.
        - **Enforce English**: Queries must be in English.
-       - **Time Anchor**: If checking current status (e.g. "is PM"), add the current year (2024 or 2025) to the query.
+       - **Time Anchor**: If checking current status (e.g. "is PM"), add "{current_year}" to the query.
        - **Context**: 
          - Books/Movies -> add "novel" or "plot" or "author".
          - Politics -> add "news" or "official".
        
        Example:
        Bad: "Who is the PM of Bangladesh?"
-       Good: "Bangladesh Prime Minister current 2025 news"
+       Good: "Bangladesh Prime Minister current {current_year} news"
        
        Query 1: Specific Entity + Action keywords.
        Query 2: Broader Fact-Check keywords.

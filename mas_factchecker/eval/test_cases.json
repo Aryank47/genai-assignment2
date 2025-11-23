@@ -68,7 +68,7 @@
     {
         "id": 12,
         "claim": "Nitish kumar won bihar election of 2024.",
-        "expected": "False",
+        "expected": "REFUTED",
         "difficulty": "Medium"
     }
 ]

@@ -4,11 +4,12 @@ import warnings
 from pathlib import Path
 
 import pandas as pd
+
+# --- FIX: Suppress warning BEFORE importing the library ---
+warnings.filterwarnings("ignore", category=RuntimeWarning, module="duckduckgo_search")
+
 from duckduckgo_search import DDGS
 from mcp.server.fastmcp import FastMCP
-
-# Suppress library warnings
-warnings.filterwarnings("ignore", category=RuntimeWarning, module="duckduckgo_search")
 
 mcp = FastMCP("AgentSearcher")
 
@@ -31,30 +32,32 @@ except Exception as e:
 
 # --- QUALITY CONTROL UTILS ---
 
+
 def _is_valid_text(text: str) -> bool:
     """
     Heuristic to reject non-English text (e.g., Chinese, French results).
     Checks if a significant portion of the text is non-ASCII or contains CJK characters.
     """
-    if not text: 
+    if not text:
         return False
-        
+
     # 1. Reject if contains Chinese/Japanese/Korean (CJK) characters
-    if re.search(r'[\u4e00-\u9fff]', text):
+    if re.search(r"[\u4e00-\u9fff]", text):
         return False
-        
+
     # 2. Reject if contains Cyrillic (Russian)
-    if re.search(r'[\u0400-\u04FF]', text):
+    if re.search(r"[\u0400-\u04FF]", text):
         return False
-        
+
     return True
+
 
 def _is_high_quality(result: dict) -> bool:
     """Filter out known spam, gaming, and dev forums."""
     title = result.get("title", "").lower()
     snippet = result.get("body", "").lower()
     url = result.get("href", "").lower()
-    
+
     # 1. Check Language Integrity
     if not _is_valid_text(title) or not _is_valid_text(snippet):
         return False
@@ -62,20 +65,40 @@ def _is_high_quality(result: dict) -> bool:
     # 2. Domain/Topic Blocklist
     junk_terms = [
         # Gaming / Spam
-        "cheat", "aimbot", "hack", "esp", "spoofer", "wz bo6", "minecraft", "roblox",
+        "cheat",
+        "aimbot",
+        "hack",
+        "esp",
+        "spoofer",
+        "wz bo6",
+        "minecraft",
+        "roblox",
         # Non-News / Dev Forums (Garbage for fact checking)
-        "zhihu", "baidu", "csdn", "hinative", "stackexchange", "stackoverflow", "github",
-        "jeuxvideo", "bilibili",
+        "zhihu",
+        "baidu",
+        "csdn",
+        "hinative",
+        "stackexchange",
+        "stackoverflow",
+        "github",
+        "jeuxvideo",
+        "bilibili",
         # Paywalls / Irrelevant
-        "login", "signup", "subscribe", "403 forbidden", "access denied"
+        "login",
+        "signup",
+        "subscribe",
+        "403 forbidden",
+        "access denied",
     ]
-    
+
     if any(term in url or term in title for term in junk_terms):
         return False
 
     return True
 
+
 # --- MCP TOOLS ---
+
 
 @mcp.tool()
 def search_databases(query: str) -> str:
@@ -120,36 +143,44 @@ def search_web(query: str) -> str:
         with DDGS() as ddgs:
             # STRATEGY 1: Try News Search first (High Precision)
             # max_results=5 to allow for filtering
-            news_gen = ddgs.news(query, region="us-en", safesearch="moderate", max_results=5)
-            
+            news_gen = ddgs.news(
+                query, region="us-en", safesearch="moderate", max_results=5
+            )
+
             for r in news_gen:
                 if _is_high_quality(r):
                     # News results use 'date' instead of 'href' sometimes, normalizing:
-                    title = r.get('title', 'No Title')
-                    snippet = r.get('body', 'No Snippet')
-                    source = r.get('url', r.get('href', 'No Link'))
-                    date = r.get('date', 'Unknown Date')
-                    
-                    results.append(f"Source: {title}\nDate: {date}\nSnippet: {snippet}\nLink: {source}")
-            
+                    title = r.get("title", "No Title")
+                    snippet = r.get("body", "No Snippet")
+                    source = r.get("url", r.get("href", "No Link"))
+                    date = r.get("date", "Unknown Date")
+
+                    results.append(
+                        f"Source: {title}\nDate: {date}\nSnippet: {snippet}\nLink: {source}"
+                    )
+
             # STRATEGY 2: Fallback to Text Search if News returns nothing (e.g., obscure history)
             if not results:
-                text_gen = ddgs.text(query, region="us-en", safesearch="moderate", max_results=5)
+                text_gen = ddgs.text(
+                    query, region="us-en", safesearch="moderate", max_results=5
+                )
                 for r in text_gen:
                     if _is_high_quality(r):
-                        title = r.get('title', 'No Title')
-                        snippet = r.get('body', 'No Snippet')
-                        source = r.get('href', 'No Link')
-                        results.append(f"Source: {title}\nSnippet: {snippet}\nLink: {source}")
+                        title = r.get("title", "No Title")
+                        snippet = r.get("body", "No Snippet")
+                        source = r.get("href", "No Link")
+                        results.append(
+                            f"Source: {title}\nSnippet: {snippet}\nLink: {source}"
+                        )
 
             # Return top 3 filtered results
             final_results = results[:3]
-            
+
             if not final_results:
                 return "No reliable English news results found."
-            
+
             return "\n\n".join(final_results)
-        
+
     except Exception as e:
         print(f"Web Search Error for '{query}': {e}")
         return "Web search unavailable due to network error."
@@ -157,4 +188,3 @@ def search_web(query: str) -> str:
 
 if __name__ == "__main__":
     mcp.run()
-    
